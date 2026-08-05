@@ -190,15 +190,30 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    val textFieldColors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = NavyDark,
+                        unfocusedTextColor = NavyDark,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedLabelColor = TealPrimary,
+                        unfocusedLabelColor = TextSecondary,
+                        focusedBorderColor = TealPrimary,
+                        unfocusedBorderColor = BorderSubtle,
+                        focusedLeadingIconColor = TealPrimary,
+                        unfocusedLeadingIconColor = TextSecondary,
+                        cursorColor = TealPrimary
+                    )
+
                     OutlinedTextField(
                         value = email,
                         onValueChange = {
                             email = it
                             errorMessage = null
                         },
-                        label = { Text("Email Address") },
+                        label = { Text("Email Address", color = TextSecondary) },
                         leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = TextSecondary) },
                         singleLine = true,
+                        colors = textFieldColors,
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("login_email_input")
@@ -212,10 +227,11 @@ fun LoginScreen(
                             password = it
                             errorMessage = null
                         },
-                        label = { Text("Password") },
+                        label = { Text("Password", color = TextSecondary) },
                         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TextSecondary) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
+                        colors = textFieldColors,
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("login_password_input")

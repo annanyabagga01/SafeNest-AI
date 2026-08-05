@@ -168,15 +168,30 @@ fun RegisterScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    val regTextFieldColors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = NavyDark,
+                        unfocusedTextColor = NavyDark,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedLabelColor = TealPrimary,
+                        unfocusedLabelColor = TextSecondary,
+                        focusedBorderColor = TealPrimary,
+                        unfocusedBorderColor = BorderSubtle,
+                        focusedLeadingIconColor = TealPrimary,
+                        unfocusedLeadingIconColor = TextSecondary,
+                        cursorColor = TealPrimary
+                    )
+
                     OutlinedTextField(
                         value = name,
                         onValueChange = {
                             name = it
                             errorMessage = null
                         },
-                        label = { Text("Full Name") },
+                        label = { Text("Full Name", color = TextSecondary) },
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = TextSecondary) },
                         singleLine = true,
+                        colors = regTextFieldColors,
                         modifier = Modifier.fillMaxWidth().testTag("reg_name_input")
                     )
 
@@ -188,9 +203,10 @@ fun RegisterScreen(
                             email = it
                             errorMessage = null
                         },
-                        label = { Text("Email Address") },
+                        label = { Text("Email Address", color = TextSecondary) },
                         leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = TextSecondary) },
                         singleLine = true,
+                        colors = regTextFieldColors,
                         modifier = Modifier.fillMaxWidth().testTag("reg_email_input")
                     )
 
@@ -202,9 +218,10 @@ fun RegisterScreen(
                             phone = it
                             errorMessage = null
                         },
-                        label = { Text("Mobile Number (+91)") },
+                        label = { Text("Mobile Number (+91)", color = TextSecondary) },
                         leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = TextSecondary) },
                         singleLine = true,
+                        colors = regTextFieldColors,
                         modifier = Modifier.fillMaxWidth().testTag("reg_phone_input")
                     )
 
@@ -216,10 +233,11 @@ fun RegisterScreen(
                             password = it
                             errorMessage = null
                         },
-                        label = { Text("Password") },
+                        label = { Text("Password", color = TextSecondary) },
                         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TextSecondary) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
+                        colors = regTextFieldColors,
                         modifier = Modifier.fillMaxWidth().testTag("reg_password_input")
                     )
 

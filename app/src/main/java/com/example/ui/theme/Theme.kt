@@ -22,12 +22,24 @@ private val LightColorScheme = lightColorScheme(
     onPrimaryContainer = OnTealContainer,
     secondary = NavyDark,
     onSecondary = SurfaceWhite,
+    secondaryContainer = SurfaceVariantLight,
+    onSecondaryContainer = TextPrimary,
+    tertiary = SafeGreen,
+    onTertiary = SurfaceWhite,
+    tertiaryContainer = SafeGreenBg,
+    onTertiaryContainer = BadgeVerifiedText,
     background = BackgroundLight,
     onBackground = TextPrimary,
     surface = SurfaceWhite,
     onSurface = TextPrimary,
+    surfaceVariant = SurfaceVariantLight,
+    onSurfaceVariant = TextSecondary,
     outline = BorderSubtle,
-    outlineVariant = BorderSubtle
+    outlineVariant = BorderStrong,
+    error = DangerRed,
+    onError = SurfaceWhite,
+    errorContainer = DangerRedBg,
+    onErrorContainer = DangerRed
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -37,12 +49,20 @@ private val DarkColorScheme = darkColorScheme(
     onPrimaryContainer = TealContainer,
     secondary = TealPrimaryLight,
     onSecondary = NavyDark,
+    secondaryContainer = NavySurface,
+    onSecondaryContainer = BackgroundLight,
+    tertiary = SafeGreen,
+    onTertiary = NavyDark,
     background = NavyDark,
     onBackground = BackgroundLight,
     surface = NavySurface,
     onSurface = BackgroundLight,
+    surfaceVariant = NavyDark,
+    onSurfaceVariant = BorderSubtle,
     outline = BorderSubtle,
-    outlineVariant = BorderSubtle
+    outlineVariant = BorderStrong,
+    error = DangerRed,
+    onError = SurfaceWhite
 )
 
 @Composable

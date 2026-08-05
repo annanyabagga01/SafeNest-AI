@@ -58,15 +58,17 @@ fun SafeNestBottomNavBar(
                         text = label,
                         fontSize = 11.5.sp,
                         fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
+                        color = if (isSelected) TealPrimary else NavyDark,
                         maxLines = 1
                     )
                 },
+                alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = TealPrimary,
                     selectedTextColor = TealPrimary,
-                    indicatorColor = TealPrimary.copy(alpha = 0.16f),
-                    unselectedIconColor = NavyDark.copy(alpha = 0.75f),
-                    unselectedTextColor = NavyDark.copy(alpha = 0.85f)
+                    indicatorColor = TealPrimary.copy(alpha = 0.18f),
+                    unselectedIconColor = NavyDark,
+                    unselectedTextColor = NavyDark
                 ),
                 modifier = Modifier.testTag("nav_tab_${label.lowercase().replace(" ", "_")}")
             )
