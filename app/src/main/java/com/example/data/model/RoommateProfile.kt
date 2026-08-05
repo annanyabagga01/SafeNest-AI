@@ -21,7 +21,8 @@ data class RoommateProfile(
     val pets: String, // "No Pets", "Pet Friendly", "Has Dog", "Has Cat"
     val gender: String, // "Female", "Male", "Non-binary"
     val avatarUrl: String = "",
-    val verifiedBadge: Boolean = true
+    val verifiedBadge: Boolean = true,
+    val lifestyleTags: String = "Early Bird,Strict Cleanliness,Vegetarian,Non-Smoker,Quiet Study Zone"
 )
 
 data class RoommateMatchResult(

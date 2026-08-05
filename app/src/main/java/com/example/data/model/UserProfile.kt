@@ -21,5 +21,6 @@ data class UserProfile(
     val workSchedule: String = "Student Hours (9 AM - 5 PM)",
     val noisePreference: String = "Quiet",
     val pets: String = "No Pets",
-    val gender: String = "Female"
+    val gender: String = "Female",
+    val lifestyleTags: String = "Early Bird,Strict Cleanliness,Vegetarian,Non-Smoker,Quiet Study Zone,WFH Friendly"
 )

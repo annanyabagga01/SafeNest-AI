@@ -47,6 +47,28 @@ class SafeNestRepository(context: Context) {
         if (currentProfile == null) {
             dao.insertUserProfile(UserProfile())
         }
+        val bookingsList = allBookings.first()
+        if (bookingsList.isEmpty()) {
+            dao.insertBooking(
+                Booking(
+                    id = "bk_seed_1",
+                    propertyId = "prop_1",
+                    propertyTitle = "CampusNest Student Co-Living",
+                    propertyLocality = "Kamla Nagar (North Campus), Delhi",
+                    propertyImageUrl = "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+                    monthlyRent = 9500,
+                    depositAmount = 9500,
+                    moveInDate = "15 Aug 2026",
+                    durationMonths = 11,
+                    tenantName = "Ananya Sharma",
+                    tenantPhone = "+91 98765 43210",
+                    message = "Interested in physical walkthrough and room allocation.",
+                    status = BookingStatus.PENDING,
+                    isEscrowProtected = true,
+                    timestamp = System.currentTimeMillis() - 86400000L
+                )
+            )
+        }
     }
 
     suspend fun getPropertyById(id: String): Property? = withContext(Dispatchers.IO) {
@@ -130,20 +152,20 @@ class SafeNestRepository(context: Context) {
         val target = roommates.find { it.id == targetRoommateId } ?: roommates.first()
         val user = userOverride ?: userProfile.first() ?: UserProfile()
 
-        var score = 50
+        var score = 40
         val positives = mutableListOf<String>()
         val differences = mutableListOf<String>()
 
         if (user.sleepSchedule.equals(target.sleepSchedule, ignoreCase = true)) {
-            score += 15
+            score += 12
             positives.add("Matched Sleep Schedule: Both prefer ${user.sleepSchedule}")
         } else {
             differences.add("Different Sleep Schedule (${user.sleepSchedule} vs ${target.sleepSchedule})")
         }
 
         if (user.cleanliness.equals(target.cleanliness, ignoreCase = true)) {
-            score += 15
-            positives.add("Matched Cleanliness Standards: Both value ${user.cleanliness} organization")
+            score += 12
+            positives.add("Matched Cleanliness Standards: Both value ${user.cleanliness}")
         } else {
             differences.add("Cleanliness Expectation (${user.cleanliness} vs ${target.cleanliness})")
         }
@@ -159,18 +181,29 @@ class SafeNestRepository(context: Context) {
             score += 10
             positives.add("Aligned Habits: Both are ${user.smokingPreference}")
         } else {
-            score -= 10
+            score -= 5
             differences.add("Smoking Habit (${user.smokingPreference} vs ${target.smokingPreference})")
         }
 
-        val finalScore = score.coerceIn(40, 98)
+        // Tag matching
+        val userTagsList = user.lifestyleTags.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val targetTagsList = target.lifestyleTags.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val sharedTags = userTagsList.intersect(targetTagsList.toSet()).toList()
+
+        if (sharedTags.isNotEmpty()) {
+            val tagBonus = (sharedTags.size * 6).coerceAtMost(30)
+            score += tagBonus
+            positives.add("Matching Lifestyle Tags: ${sharedTags.joinToString(", ")}")
+        }
+
+        val finalScore = score.coerceIn(45, 98)
         val advice = geminiService.generateRoommateAdvice(user, target, finalScore, positives, differences)
 
         RoommateMatchResult(
             roommate = target,
             compatibilityScore = finalScore,
-            positiveReasons = positives.ifEmpty { listOf("Compatible budget and city preference.") },
-            potentialDifferences = differences.ifEmpty { listOf("No significant habit conflicts detected.") },
+            positiveReasons = positives.ifEmpty { listOf("Compatible budget and location preferences.") },
+            potentialDifferences = differences.ifEmpty { listOf("No significant conflicts identified.") },
             aiHarmonyAdvice = advice
         )
     }
@@ -411,7 +444,8 @@ class SafeNestRepository(context: Context) {
             noisePreference = "Quiet",
             pets = "No Pets",
             gender = "Female",
-            verifiedBadge = true
+            verifiedBadge = true,
+            lifestyleTags = "Early Bird,Strict Cleanliness,Vegetarian,Non-Smoker,Quiet Study Zone,WFH Friendly,Fitness Enthusiast"
         ),
         RoommateProfile(
             id = "rm_2",
@@ -429,7 +463,8 @@ class SafeNestRepository(context: Context) {
             noisePreference = "Moderate",
             pets = "Pet Friendly",
             gender = "Male",
-            verifiedBadge = true
+            verifiedBadge = true,
+            lifestyleTags = "Night Owl,Moderate Cleanliness,Non-Veg,Non-Smoker,Pet Friendly,WFH Friendly,Music Lover"
         ),
         RoommateProfile(
             id = "rm_3",
@@ -447,7 +482,8 @@ class SafeNestRepository(context: Context) {
             noisePreference = "Quiet",
             pets = "No Pets",
             gender = "Female",
-            verifiedBadge = true
+            verifiedBadge = true,
+            lifestyleTags = "Early Bird,Strict Cleanliness,Vegetarian,Non-Smoker,Quiet Study Zone,Teetotaler"
         ),
         RoommateProfile(
             id = "rm_4",
@@ -465,7 +501,46 @@ class SafeNestRepository(context: Context) {
             noisePreference = "Quiet",
             pets = "No Pets",
             gender = "Male",
-            verifiedBadge = true
+            verifiedBadge = true,
+            lifestyleTags = "Early Bird,Moderate Cleanliness,Non-Smoker,Quiet Study Zone,Fitness Enthusiast"
+        ),
+        RoommateProfile(
+            id = "rm_5",
+            name = "Divya Nair",
+            age = 23,
+            occupation = "Product Manager at Swiggy",
+            bio = "Cleanliness freak, loves cooking south-indian meals, early jogger. Looking for female flatmates in South Delhi or Noida Expressway.",
+            city = "Noida",
+            maxBudget = 16500,
+            sleepSchedule = "Early Bird",
+            cleanliness = "Strict",
+            foodPreference = "Vegetarian",
+            smokingPreference = "Non-Smoker",
+            studyWorkSchedule = "Office Hours (9 AM - 6 PM)",
+            noisePreference = "Quiet",
+            pets = "No Pets",
+            gender = "Female",
+            verifiedBadge = true,
+            lifestyleTags = "Early Bird,Strict Cleanliness,Vegetarian,Non-Smoker,Quiet Study Zone,WFH Friendly,Teetotaler"
+        ),
+        RoommateProfile(
+            id = "rm_6",
+            name = "Kabir Mehta",
+            age = 26,
+            occupation = "Data Scientist at Amazon",
+            bio = "Respectful flatmate, loves high-speed Wi-Fi, weekend football, and keeping common areas tidy. Flexible with move-in dates.",
+            city = "Gurugram",
+            maxBudget = 20000,
+            sleepSchedule = "Flexible",
+            cleanliness = "Strict",
+            foodPreference = "Non-Veg",
+            smokingPreference = "Non-Smoker",
+            studyWorkSchedule = "Hybrid (10 AM - 7 PM)",
+            noisePreference = "Quiet",
+            pets = "Pet Friendly",
+            gender = "Male",
+            verifiedBadge = true,
+            lifestyleTags = "Flexible Hours,Strict Cleanliness,Non-Smoker,Pet Friendly,WFH Friendly,Fitness Enthusiast"
         )
     )
 }

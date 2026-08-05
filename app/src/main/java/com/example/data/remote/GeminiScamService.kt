@@ -38,7 +38,7 @@ class GeminiScamService {
             ""
         }
 
-        if (apiKey.isNullOrEmpty() || apiKey == "MY_GEMINI_API_KEY") {
+        if (apiKey.isNullOrEmpty() || apiKey == "MY_GEMINI_API_KEY" || apiKey == "null") {
             Log.d("GeminiScamService", "Using local smart heuristic analysis engine (no API key configured)")
             return@withContext performSmartHeuristicAnalysis(description, rent, deposit, brokerMessage, suspiciousClaims)
         }
@@ -98,7 +98,15 @@ class GeminiScamService {
                     val text = parts?.getJSONObject(0)?.optString("text")
 
                     if (!text.isNullOrEmpty()) {
-                        val parsed = JSONObject(text)
+                        val startIdx = text.indexOf('{')
+                        val endIdx = text.lastIndexOf('}')
+                        val jsonString = if (startIdx != -1 && endIdx > startIdx) {
+                            text.substring(startIdx, endIdx + 1)
+                        } else {
+                            text
+                        }
+
+                        val parsed = JSONObject(jsonString)
                         val levelStr = parsed.optString("riskLevel", "MEDIUM").uppercase()
                         val level = when (levelStr) {
                             "HIGH" -> RiskLevel.HIGH

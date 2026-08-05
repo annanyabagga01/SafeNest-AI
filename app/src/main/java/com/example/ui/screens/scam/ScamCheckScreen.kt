@@ -290,6 +290,33 @@ fun ScamCheckScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Error View if any
+            if (scamState.error != null) {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = DangerRed.copy(alpha = 0.1f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .border(1.dp, DangerRed.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.ReportProblem, contentDescription = null, tint = DangerRed)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = scamState.error.orEmpty(),
+                            fontSize = 13.sp,
+                            color = DangerRed,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             // Scam Result View
             val result = scamState.result
             if (result != null) {
