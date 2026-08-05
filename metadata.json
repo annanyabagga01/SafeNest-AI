@@ -1,0 +1,6 @@
+{
+  "name": "SafeNest AI",
+  "description": "Verified Homes. Trusted People. Safe Living. AI-powered rental discovery, scam detection & roommate matching.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
