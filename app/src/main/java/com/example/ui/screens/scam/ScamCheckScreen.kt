@@ -159,6 +159,19 @@ fun ScamCheckScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    OutlinedTextField(
+                        value = scamState.location,
+                        onValueChange = { viewModel.updateScamInputs(location = it) },
+                        label = { Text("Property Location / Locality") },
+                        placeholder = { Text("e.g. DLF Cyber City, Sector 62 Noida, Hauz Khas Delhi") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("scam_location_input")
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -226,6 +239,7 @@ fun ScamCheckScreen(
                             onClick = {
                                 viewModel.updateScamInputs(
                                     desc = "Luxury 2BHK Cyber City Gurugram",
+                                    location = "DLF Cyber City, Gurugram",
                                     rent = "4500",
                                     deposit = "15000",
                                     brokerMsg = "Pay ₹5000 token money urgently on Google Pay to hold flat. Owner is Army Officer posted abroad, keys delivered by speed post.",
@@ -245,6 +259,7 @@ fun ScamCheckScreen(
                             onClick = {
                                 viewModel.updateScamInputs(
                                     desc = "MetroView PG Sector 62 Noida",
+                                    location = "Sector 62, Noida",
                                     rent = "11000",
                                     deposit = "11000",
                                     brokerMsg = "Physical visit welcome at Sector 62. Aadhaar verification at reception required before booking.",

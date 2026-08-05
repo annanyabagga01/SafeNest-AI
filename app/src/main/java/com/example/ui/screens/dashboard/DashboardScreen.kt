@@ -32,6 +32,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -65,6 +68,7 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.viewmodel.SafeNestViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     viewModel: SafeNestViewModel,
@@ -75,6 +79,7 @@ fun DashboardScreen(
     val properties by viewModel.properties.collectAsState()
     val bookings by viewModel.allBookings.collectAsState()
     val savedProperties by viewModel.savedProperties.collectAsState()
+    val isRefreshing by viewModel.isRefreshingProperties.collectAsState()
 
     val userName = userProfile?.name ?: "Ananya Sharma"
 
@@ -88,12 +93,19 @@ fun DashboardScreen(
         },
         containerColor = BackgroundLight
     ) { innerPadding ->
-        Column(
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refreshProperties() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .testTag("dashboard_pull_to_refresh")
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
             // Header Bar
             Row(
                 modifier = Modifier
@@ -455,6 +467,7 @@ fun DashboardScreen(
             }
         }
     }
+}
 }
 
 @Composable

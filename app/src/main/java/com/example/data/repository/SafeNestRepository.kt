@@ -34,6 +34,14 @@ class SafeNestRepository(context: Context) {
     val allRoommates: Flow<List<RoommateProfile>> = dao.getAllRoommates()
     val userProfile: Flow<UserProfile?> = dao.getUserProfile("user_demo_1")
 
+    suspend fun refreshProperties() = withContext(Dispatchers.IO) {
+        kotlinx.coroutines.delay(1200L) // Simulate API fetch delay
+        val propertiesList = allProperties.first()
+        if (propertiesList.isEmpty()) {
+            dao.insertProperties(getSeedProperties())
+        }
+    }
+
     suspend fun initializeSeedDataIfEmpty() = withContext(Dispatchers.IO) {
         val propertiesList = allProperties.first()
         if (propertiesList.isEmpty()) {

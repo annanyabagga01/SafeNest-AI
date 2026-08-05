@@ -30,15 +30,32 @@ import kotlinx.coroutines.launch
 data class PropertyFilterState(
     val searchQuery: String = "",
     val selectedCity: String = "All", // "All", "Delhi", "Noida", "Gurugram"
+    val selectedLocality: String = "All", // "All", "Hauz Khas", "Saket", "Sector 62", "Noida Expressway", "DLF Phase 3"
     val selectedType: String = "All", // "All", "PG/Hostel", "1BHK", "2BHK", "Studio"
     val selectedGender: String = "All", // "All", "Unisex", "Girls Only", "Boys Only"
-    val maxRent: Int = 30000,
+    val minRent: Int = 0,
+    val maxRent: Int = 35000,
     val verifiedOnly: Boolean = false,
-    val sortBy: String = "Trust Score" // "Trust Score", "Rent: Low to High", "Safety Score"
-)
+    val minSafetyScore: Int = 0, // 0, 80, 90
+    val sortBy: String = "Trust Score" // "Trust Score", "Rent: Low to High", "Rent: High to Low", "Safety Score"
+) {
+    val activeFilterCount: Int
+        get() {
+            var count = 0
+            if (selectedCity != "All") count++
+            if (selectedLocality != "All") count++
+            if (selectedType != "All") count++
+            if (selectedGender != "All") count++
+            if (minRent > 0 || maxRent < 35000) count++
+            if (verifiedOnly) count++
+            if (minSafetyScore > 0) count++
+            return count
+        }
+}
 
 data class ScamCheckUiState(
     val description: String = "",
+    val location: String = "",
     val rent: String = "",
     val deposit: String = "",
     val brokerMessage: String = "",
@@ -78,6 +95,10 @@ class SafeNestViewModel(application: Application) : AndroidViewModel(application
     private val _lastCreatedBooking = MutableStateFlow<Booking?>(null)
     val lastCreatedBooking: StateFlow<Booking?> = _lastCreatedBooking.asStateFlow()
 
+    // Pull to Refresh State
+    private val _isRefreshingProperties = MutableStateFlow(false)
+    val isRefreshingProperties: StateFlow<Boolean> = _isRefreshingProperties.asStateFlow()
+
     init {
         viewModelScope.launch {
             repository.initializeSeedDataIfEmpty()
@@ -93,22 +114,29 @@ class SafeNestViewModel(application: Application) : AndroidViewModel(application
             val matchesQuery = filter.searchQuery.isEmpty() ||
                     prop.title.contains(filter.searchQuery, ignoreCase = true) ||
                     prop.locality.contains(filter.searchQuery, ignoreCase = true) ||
-                    prop.city.contains(filter.searchQuery, ignoreCase = true)
+                    prop.city.contains(filter.searchQuery, ignoreCase = true) ||
+                    prop.type.contains(filter.searchQuery, ignoreCase = true)
             val matchesCity = filter.selectedCity == "All" || prop.city.equals(filter.selectedCity, ignoreCase = true)
+            val matchesLocality = filter.selectedLocality == "All" || prop.locality.contains(filter.selectedLocality, ignoreCase = true)
             val matchesType = filter.selectedType == "All" || prop.type.equals(filter.selectedType, ignoreCase = true)
             val matchesGender = filter.selectedGender == "All" || prop.genderPreference.equals(filter.selectedGender, ignoreCase = true)
-            val matchesRent = prop.monthlyRent <= filter.maxRent
+            val matchesRent = prop.monthlyRent in filter.minRent..filter.maxRent
             val matchesVerified = !filter.verifiedOnly || (prop.propertyVerified && prop.ownerVerified)
+            val matchesSafety = prop.safetyScore >= filter.minSafetyScore
 
-            matchesQuery && matchesCity && matchesType && matchesGender && matchesRent && matchesVerified
+            matchesQuery && matchesCity && matchesLocality && matchesType && matchesGender && matchesRent && matchesVerified && matchesSafety
         }.sortedWith { a, b ->
             when (filter.sortBy) {
                 "Rent: Low to High" -> a.monthlyRent.compareTo(b.monthlyRent)
+                "Rent: High to Low" -> b.monthlyRent.compareTo(a.monthlyRent)
                 "Safety Score" -> b.safetyScore.compareTo(a.safetyScore)
                 else -> b.trustScore.compareTo(a.trustScore)
             }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val rawProperties: StateFlow<List<Property>> = repository.allProperties
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val savedProperties: StateFlow<List<Property>> = repository.savedProperties
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -178,15 +206,29 @@ class SafeNestViewModel(application: Application) : AndroidViewModel(application
         _filterState.value = newFilter
     }
 
+    fun refreshProperties() {
+        viewModelScope.launch {
+            _isRefreshingProperties.value = true
+            repository.refreshProperties()
+            _isRefreshingProperties.value = false
+        }
+    }
+
+    fun resetFilters() {
+        val currentQuery = _filterState.value.searchQuery
+        _filterState.value = PropertyFilterState(searchQuery = currentQuery)
+    }
+
     fun toggleSaveProperty(propertyId: String, currentSaved: Boolean) {
         viewModelScope.launch {
             repository.toggleSaveProperty(propertyId, currentSaved)
         }
     }
 
-    fun prefillScamCheck(description: String, rent: Int, deposit: Int) {
+    fun prefillScamCheck(description: String, rent: Int, deposit: Int, location: String = "") {
         _scamUiState.value = _scamUiState.value.copy(
             description = description,
+            location = location,
             rent = rent.toString(),
             deposit = deposit.toString(),
             brokerMessage = "Listing verified via SafeNest pre-analysis check.",
@@ -196,6 +238,7 @@ class SafeNestViewModel(application: Application) : AndroidViewModel(application
 
     fun updateScamInputs(
         desc: String = _scamUiState.value.description,
+        location: String = _scamUiState.value.location,
         rent: String = _scamUiState.value.rent,
         deposit: String = _scamUiState.value.deposit,
         brokerMsg: String = _scamUiState.value.brokerMessage,
@@ -203,6 +246,7 @@ class SafeNestViewModel(application: Application) : AndroidViewModel(application
     ) {
         _scamUiState.value = _scamUiState.value.copy(
             description = desc,
+            location = location,
             rent = rent,
             deposit = deposit,
             brokerMessage = brokerMsg,
@@ -217,8 +261,13 @@ class SafeNestViewModel(application: Application) : AndroidViewModel(application
             try {
                 val rentVal = state.rent.toIntOrNull() ?: 0
                 val depositVal = state.deposit.toIntOrNull() ?: 0
+                val fullDescription = if (state.location.isNotBlank()) {
+                    "${state.description} [Location: ${state.location}]"
+                } else {
+                    state.description
+                }
                 val result = repository.runScamAnalysis(
-                    description = state.description.ifEmpty { "Standard rental listing" },
+                    description = fullDescription.ifEmpty { "Standard rental listing" },
                     rent = rentVal,
                     deposit = depositVal,
                     brokerMessage = state.brokerMessage,
