@@ -5,6 +5,24 @@
 
 ---
 
+## 📱 Download SafeNest AI
+
+<p align="center">
+  <a href="./app-debug.apk">
+    <img src="https://img.shields.io/badge/Download%20APK-SafeNest%20AI-brightgreen?style=for-the-badge&logo=android&logoColor=white" alt="Download SafeNest AI APK"/>
+  </a>
+</p>
+
+<p align="center">
+  <b>🚀 Try SafeNest AI on Android</b><br>
+  Download the latest APK and explore safer rental discovery, AI scam detection,
+  roommate compatibility, and women's safety insights.
+</p>
+
+> ⚠️ **Installation:** If Android blocks the installation, allow installation from unknown sources for your browser or file manager and try again.
+
+---
+
 ## 🌟 Overview
 
 **SafeNest AI** reimagines urban rental living by prioritizing safety, transparency, and compatibility. Built specifically for students and working professionals navigating complex rental markets in major Indian metros (Delhi NCR, Noida, Gurugram, Bengaluru, Mumbai), SafeNest AI integrates Gemini-powered AI models with local offline-first persistence to protect users from rental fraud, help them find verified co-living spaces, and discover compatible roommates.
