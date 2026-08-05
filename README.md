@@ -78,9 +78,6 @@ SafeNest AI follows modern Android development best practices and **MVVM / Clean
 **Annanya Bagga And Ashmeet Kaur**  
 BCA Student | Android Developer | AI & Full-Stack Enthusiast
 
-- GitHub: https://github.com/annanyabagga01
-- LinkedIn: https://www.linkedin.com/in/annanyabagga24/
-
 ---
 
 ## 📄 License
